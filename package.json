@@ -1,0 +1,8 @@
+{
+  "name": "packingproof-kdzs",
+  "private": true,
+  "scripts": {
+    "check": "node --check payload/PackingProof-Order-Integration-KDZS.user.js",
+    "test": "node --test"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://packingproof.dev/schemas/author-manifest.v1.schema.json",
+  "schemaVersion": 1,
+  "id": "packingproof.kdzs",
+  "name": "PackingProof 快递助手订单联动",
+  "version": "2.14",
+  "type": "userscript",
+  "minPackingProofVersion": "0.0.63",
+  "payload": "payload/PackingProof-Order-Integration-KDZS.user.js"
+}
+
