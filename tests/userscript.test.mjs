@@ -7,7 +7,7 @@ const script = await readFile(new URL("../payload/PackingProof-Order-Integration
 
 test("keeps the two-part source version and PackingProof placeholders", () => {
   const version = script.match(/^\/\/\s*@version\s+([^\r\n]+)/m)?.[1].trim();
-  assert.equal(version, "2.14");
+  assert.equal(version, "2.15");
   assert.equal(manifest.version, version);
   assert.match(version, /^\d+\.\d+$/);
   assert.match(script, /\/\/ PACKING_PROOF_CONNECT_TARGETS/);
