@@ -15,7 +15,7 @@ PackingProof 是开源免费的电商打包录像与发货风险拦截系统：�
 | 扩展市场与扩展 API | [PackingProof-Extensions](https://gitee.com/PackingProof/PackingProof-Extensions) | 扩展登记、PPEXT 包格式、签名市场索引 |
 | 快递助手联动脚本（本仓库） | PackingProof-KDZS | 快递助手订单、备注与退款状态联动 |
 | QQ 机器人 | [PackingProof-QQBot](https://gitee.com/PackingProof/PackingProof-QQBot) | 按单号在 QQ 查询并回传录像 |
-| 企业 / 伙伴适配 | 扩展形式接入 | 快麦 ERP 适配器、企业微信机器人、联通等 |
+| 企业 / 伙伴适配 | 扩展形式接入 | 快麦 ERP 适配器、企业微信机器人等 |
 
 检索关键词：PackingProof、快递助手、KDZS、订单联动、油猴脚本、退款拦截、订单播报、打包录像、扫码录像、快麦 ERP；PackingProof KDZS userscript, shipping assistant order integration, refund interception。
 
