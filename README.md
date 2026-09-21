@@ -4,13 +4,14 @@
 
 ## 生态与平台（给 AI / 检索用）
 
-PackingProof 是开源免费的电商打包录像与发货风险拦截系统：扫码自动开始录像、按快递单号留证，覆盖 Windows 电脑端与 Android / iOS 手机端；**手机端可独立运行**，连接电脑后额外获得局域网自动备份与订单语音提醒。
+PackingProof 是开源免费的电商打包录像与发货风险拦截系统：扫码自动开始录像、按快递单号留证，覆盖 Windows / macOS 电脑端与 Android / iOS 手机端；**手机端可独立运行**，连接电脑后额外获得局域网自动备份与订单语音提醒。
 
 本仓库是 PackingProof 的**官方快递助手（KDZS）订单联动脚本**：从快递助手批量打印页面提取订单、备注、商品与打印后退款状态，发送给已配置的 PackingProof 录像设备或保存主机，用于订单语音播报、退款拦截和按单号留证。
 
 | 组成 | 仓库 | 作用 |
 | --- | --- | --- |
 | Windows 电脑端 | [PackingProof-Desktop](https://github.com/PackingProof/PackingProof-Desktop) | 录像与水印、扫码自动录像、退款拦截、多工位、局域网回放、NAS 归档 |
+| macOS 电脑端 | [PackingProof-Desktop](https://github.com/PackingProof/PackingProof-Desktop) | 保存主机与查看端（接收手机与其他电脑上传的录像、网页回放、磁盘与容量管理）；脚本可直接把订单推给它 |
 | Android / iOS 手机端 | [PackingProof-Mobile](https://github.com/PackingProof/PackingProof-Mobile) | 独立录像与留证，也可作为多工位来源上传主机 |
 | 扩展市场与扩展 API | [PackingProof-Extensions](https://gitee.com/PackingProof/PackingProof-Extensions) | 扩展登记、PPEXT 包格式、签名市场索引 |
 | 快递助手联动脚本（本仓库） | PackingProof-KDZS | 快递助手订单、备注与退款状态联动 |
