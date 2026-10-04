@@ -48,6 +48,17 @@ test("broadcasts independently and keeps refund work isolated", () => {
   assert.doesNotMatch(script, /applyInstalledMonitorAddresses\(\)/);
 });
 
+test("keeps the refund worker on the batch print page", () => {
+  for (const expected of [
+    "const REFUND_WORKER_BATCH_PRINT_HASH = '#/printBatch/'",
+    "function isBatchPrintRoute()",
+    "url.hash = REFUND_WORKER_BATCH_PRINT_HASH",
+    "function switchRefundWorkerToBatchPrint()",
+    "switchRefundWorkerToBatchPrint();",
+    "setInterval(switchRefundWorkerToBatchPrint, REFUND_WORKER_RECHECK_INTERVAL_MS)",
+  ]) assert.match(script, new RegExp(escapeRegExp(expected)));
+});
+
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }

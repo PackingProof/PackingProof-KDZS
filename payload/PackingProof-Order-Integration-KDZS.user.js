@@ -46,6 +46,7 @@
     const PRINTED_REFUND_FILTER_COOLDOWN_MS = 30000;
     const USER_ACTIVITY_IDLE_MS = 30000;
     const REFUND_WORKER_PARAM = 'epm_refund_worker';
+    const REFUND_WORKER_BATCH_PRINT_HASH = '#/printBatch/';
     const REFUND_WORKER_HEARTBEAT_KEY = 'refund_worker_heartbeat';
     const REFUND_WORKER_OPEN_LOCK_KEY = 'refund_worker_open_lock';
     const REFUND_WORKER_HEARTBEAT_INTERVAL_MS = 30000;
@@ -90,10 +91,24 @@
         if (DEBUG_LOG) console.log(...args);
     }
 
+    function isBatchPrintRoute() {
+        return String(location.hash || '').toLowerCase().startsWith('#/printbatch');
+    }
+
+    // 退款核验页只能停留在快递助手的“批量打印”页，否则查不到“打印后退款”。
     function buildRefundWorkerUrl() {
         const url = new URL(location.href);
+        url.hash = REFUND_WORKER_BATCH_PRINT_HASH;
         url.searchParams.set(REFUND_WORKER_PARAM, '1');
         return url.href;
+    }
+
+    // 工作页被打开或漂移到别的页面时，自动切回批量打印页；只改 hash 时不会重新加载脚本。
+    function switchRefundWorkerToBatchPrint() {
+        if (isBatchPrintRoute()) return false;
+        debugLog('[打包监控] 退款核验页不在批量打印页，正在自动切换');
+        location.replace(buildRefundWorkerUrl());
+        return true;
     }
 
     function getRefundWorkerHeartbeat() {
@@ -1294,8 +1309,11 @@
     startConnectionHeartbeat();
 
     if (IS_REFUND_WORKER) {
+        switchRefundWorkerToBatchPrint();
         setTimeout(async () => {
             if (!await startRefundWorkerHeartbeat()) return;
+            // 工作页被意外切走后自动回到批量打印页，避免核验请求无人领取。
+            setInterval(switchRefundWorkerToBatchPrint, REFUND_WORKER_RECHECK_INTERVAL_MS);
             const startWhenHostAvailable = async () => {
                 if (await canConnectHost()) {
                     if (!await startExtensionTaskPolling()) startOrderLookupPolling();
