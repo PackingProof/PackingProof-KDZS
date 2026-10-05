@@ -1122,18 +1122,51 @@
         return true;
     }
 
+    // 扩展任务轮询的容错参数。长轮询 20 秒、请求超时 25 秒，超过这个数量级还没收尾
+    // 就按"这次请求卡死"处理，免得一条请求把整条链路永久挂住。
+    const EXTENSION_TASK_RETRY_MIN_MS = 3000;
+    const EXTENSION_TASK_RETRY_MAX_MS = 60000;
+    const EXTENSION_TASK_STALL_MS = 90000;
+
     async function runExtensionTaskLoop(credentialState) {
         let state = credentialState;
+        let retryDelay = EXTENSION_TASK_RETRY_MIN_MS;
         while (state) {
-            const target = '/api/extensions/v1/scan-tasks/next?waitSeconds=20';
-            const response = await signedExtensionRequest('GET', target, null, 25000, state);
-            if (response.status === 204) continue;
-            if (response.status === 200 && response.body?.deliveryId) {
+            let response;
+            try {
+                response = await Promise.race([
+                    signedExtensionRequest('GET', '/api/extensions/v1/scan-tasks/next?waitSeconds=20', null, 25000, state),
+                    delay(EXTENSION_TASK_STALL_MS).then(() => null)
+                ]);
+            } catch (error) {
+                response = { status: 0, error: error?.message || 'request_failed' };
+            }
+
+            if (response?.status === 204) {
+                retryDelay = EXTENSION_TASK_RETRY_MIN_MS;
+                continue;
+            }
+            if (response?.status === 200 && response.body?.deliveryId) {
+                retryDelay = EXTENSION_TASK_RETRY_MIN_MS;
                 await processExtensionDelivery(response.body, state);
                 continue;
             }
-            if ([401, 403].includes(response.status)) clearExtensionCredential();
-            return false;
+
+            // 以前这里任何非 200/204 都直接 return，退出后只有刷新页面才会恢复，
+            // 现场表现就是"扫码任务一直在发、插件一个都不回"。现在退让一拍重试。
+            if (response) {
+                console.warn('[PackingProof] 扩展任务轮询失败，准备重试:', response.status, response.error || '');
+            } else {
+                console.warn('[PackingProof] 扩展任务轮询超时未返回，准备重连');
+            }
+            if ([401, 403].includes(response?.status)) clearExtensionCredential();
+
+            await delay(retryDelay);
+            retryDelay = Math.min(retryDelay * 2, EXTENSION_TASK_RETRY_MAX_MS);
+            const renewed = await ensureExtensionAuthorization();
+            // 重新授权失败但本地凭证还在（例如查询能力时网络抖动）就继续用旧凭证重试；
+            // 确实没有可用凭证时才退出，交给旧协议兜底。
+            state = renewed || (loadExtensionCredential() ? state : null);
         }
         return false;
     }

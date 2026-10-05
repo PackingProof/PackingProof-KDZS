@@ -59,6 +59,19 @@ test("keeps the refund worker on the batch print page", () => {
   ]) assert.match(script, new RegExp(escapeRegExp(expected)));
 });
 
+test("retries the extension task poll instead of stopping for good", () => {
+  for (const expected of [
+    "const EXTENSION_TASK_RETRY_MIN_MS",
+    "const EXTENSION_TASK_RETRY_MAX_MS",
+    "const EXTENSION_TASK_STALL_MS",
+    "await delay(retryDelay)",
+    "retryDelay = Math.min(retryDelay * 2, EXTENSION_TASK_RETRY_MAX_MS)",
+    "state = renewed || (loadExtensionCredential() ? state : null)",
+  ]) assert.match(script, new RegExp(escapeRegExp(expected)));
+  // 一次失败就退出会让扫码任务永远没人领，只有刷新页面才恢复。
+  assert.doesNotMatch(script, /clearExtensionCredential\(\);\s*return false;/);
+});
+
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
