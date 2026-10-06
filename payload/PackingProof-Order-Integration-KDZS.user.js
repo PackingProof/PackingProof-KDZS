@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         PackingProof 快递助手订单联动
 // @namespace    https://github.com/PackingProof
-// @version      2.16
+// @version      2.17
 // @description  从快递助手批量打印页面提取订单备注和打印后退款状态，同时发送到已配对的电脑和手机
 // @author       ExpressPackingMonitoring
 // @icon         https://raw.githubusercontent.com/PackingProof/PackingProof-Desktop/main/ExpressPackingMonitoring/app.ico
@@ -68,7 +68,7 @@
     const EXTENSION_CAPABILITIES = ['order.lookup', 'refund.lookup'];
     const IS_REFUND_WORKER = new URL(location.href).searchParams.get(REFUND_WORKER_PARAM) === '1';
     const REFUND_WORKER_TOKEN = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    const CHANGELOG = 'v2.16：修复退款核验页可能不在批量打印页的问题';
+    const CHANGELOG = 'v2.17：修复扫码任务轮询断线后不会自动重连的问题';
     const DEBUG_LOG = false;
 
     let lastUserActivityAt = Date.now();
@@ -743,7 +743,7 @@
     }
 
     function getScriptVersion() {
-        return String(GM_info?.script?.version || '2.16').trim();
+        return String(GM_info?.script?.version || '2.17').trim();
     }
 
     function getExtensionInstanceId() {
