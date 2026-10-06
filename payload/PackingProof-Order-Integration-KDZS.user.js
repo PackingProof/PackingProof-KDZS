@@ -913,6 +913,9 @@
     }
 
     let lastPrintedRefundFilterClickAt = 0;
+    // 所有核验查询都跑在专用的退款核验工作页上：那个页面是我们自己打开、带半透明遮罩、
+    // 也不抢焦点的，用户正在看的快递助手页面完全不受影响。下面的 IS_REFUND_WORKER 判断
+    // 只是兜底——万一以后有别的地方从普通页面调到这个函数，也不要去动用户正在看的列表。
     async function queryPrintedRefundSnapshot() {
         const selector = '[data-act-name="searchQuickQuery"][data-status="4"]';
         let refundFilter = document.querySelector(selector);
@@ -926,7 +929,7 @@
 
         const now = Date.now();
         if (!IS_REFUND_WORKER && isUserActivelyUsingPage(now)) {
-            throw new Error('检测到用户正在操作快递助手，本次不切换页面，已使用监控端最近缓存');
+            throw new Error('普通页面不切换“打印后退款”筛选，退款核验请走专用工作页，本次使用监控端最近缓存');
         }
         if (now - lastPrintedRefundFilterClickAt < PRINTED_REFUND_FILTER_COOLDOWN_MS) {
             throw new Error('打印后退款查询正在安全冷却，已使用监控端最近缓存');
@@ -999,6 +1002,7 @@
         if (changed) await delay(200);
     }
 
+    // 按快递单号查询，只在专用工作页里执行（工作页不抢焦点、带遮罩，用户那边的页面不动）。
     async function queryOrdersByTrackingNumbers(trackingNumbers) {
         const values = Array.from(new Set((trackingNumbers || []).map(value => String(value || '').trim().toUpperCase()).filter(Boolean)));
         if (values.length === 0) return [];
